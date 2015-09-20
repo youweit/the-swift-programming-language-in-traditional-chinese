@@ -1,5 +1,6 @@
-> 翻譯：[Hawstein](https://github.com/Hawstein)
-> 校對：[menlongsheng](https://github.com/menlongsheng)
+> 1.0 翻譯：[Hawstein](https://github.com/Hawstein) 校對：[menlongsheng](https://github.com/menlongsheng)
+
+> 2.0 翻譯：[shanksyang](https://github.com/shanksyang) 校對：[shanksyang](https://github.com/shanksyang), [youweit](https://github.com/youweit)
 
 # 繼承（Inheritance）
 -------------------
@@ -25,43 +26,34 @@
 > 注意：  
 Swift 中的類別並不是從一個通用的基類別繼承而來。如果你不為你定義的類別指定一個超類別的話，這個類別就自動成為基類別。
 
-下面的範例定義了一個叫`Vehicle`的基類別。這個基類別宣告了兩個對所有車輛都通用的屬性（`numberOfWheels`和`maxPassengers`）。這些屬性在`description`方法中使用，這個方法回傳一個`String`型別的，對車輛特征的描述：
+下面的例子定義了一個叫`Vehicle`的基類。這個基類聲明了一個名為`currentSpeed`，預設值是0.0的存儲屬性(屬性類型推斷為`Double`)。`currentSpeed`屬性的值被一個`String`類型的只讀計算型屬性`description`使用，用來創建車輛的描述。
+
+`Vehicle`基類也定義了一個名為`makeNois`e的方法。這個方法實際上不為`Vehicle`實例做任何事，但之後將會由`Vehicle`的子類實作：
 
 ```swift
 class Vehicle {
-    var numberOfWheels: Int
-    var maxPassengers: Int
-    func description() -> String {
-        return "\(numberOfWheels) wheels; up to \(maxPassengers) passengers"
+    var currentSpeed = 0.0
+    var description: String {
+        return "traveling at \(currentSpeed) miles per hour"
     }
-    init() {
-        numberOfWheels = 0
-        maxPassengers = 1
+    func makeNoise() {
+        // 什麼也不做，因為車子不一定會有噪音
     }
 }
 ```
-
-`Vehicle`類別定義了*建構器（initializer）*來設置屬性的值。建構器會在[建構過程](../chapter2/_14Initialization.html)一節中詳細介紹，這裡我們做一下簡單介紹，以便於講解子類別中繼承來的屬性如何被修改。
-
-建構器用於創建某個型別的一個新實例。儘管建構器並不是方法，但在語法上，兩者很相似。建構器的工作是準備新實例以供使用，並確保實例中的所有屬性都擁有有效的初始化值。
-
-建構器的最簡單形式就像一個沒有參數的實例方法，使用`init`關鍵字：
-
-```swift
-init() {
-    // 執行建構過程
-}
-```
-
-如果要創建一個`Vehicle`類別的新實例，使用*建構器*語法呼叫上面的初始化器，即類別名後面跟一個空的小括號：
+您可以用初始化語法創建一個`Vehicle`的新實例，即類名後面跟一個空括號：
 
 ```swift
 let someVehicle = Vehicle()
 ```
 
-這個`Vehicle`類別的建構器為任意的一輛車設置一些初始化屬性值（`numberOfWheels = 0 `和`maxPassengers = 1`）。
+現在已經創建了一個Vehicle的新實例，你可以訪問它的description屬性來打印車輛的當前速度。
 
-`Vehicle`類別定義了車輛的共同特性，但這個類別本身並沒太大用處。為了使它更為實用，你需要進一步細化它來描述更具體的車輛。
+```swift
+print("Vehicle: \(someVehicle.description)")
+// Vehicle: traveling at 0.0 miles per hour
+```
+`Vehicle`類定義了一個通用特性的車輛類，實際上沒什麼用處。為了讓它變得更加有用，需要改進它能夠描述一個更加具體的車輛類。
 
 <a name="subclassing"></a>
 ## 子類別生成（Subclassing）
@@ -76,64 +68,48 @@ class SomeClass: SomeSuperclass {
 }
 ```
 
-下一個範例，定義一個更具體的車輛類別叫`Bicycle`。這個新類別是在 `Vehicle`類別的基礎上創建起來。因此你需要將`Vehicle`類別放在 `Bicycle`類別後面，用冒號分隔。
-
-我們可以將這讀作：
-
-「定義一個新的類別叫`Bicycle `，它繼承了`Vehicle`的特性」；
+下一個範例，定義一個更具體的車輛類別叫`Bicycle`。
 
 ```swift
 class Bicycle: Vehicle {
-    init() {
-        super.init()
-        numberOfWheels = 2
-    }
+    var hasBasket = false
 }
 ```
-preview
- `Bicycle`是`Vehicle`的子類別，`Vehicle`是`Bicycle`的超類別。新的`Bicycle`類別自動獲得`Vehicle`類別的特性，比如 `maxPassengers`和`numberOfWheels`屬性。你可以在子類別中定制這些特性，或添加新的特性來更好地描述`Bicycle`類別。
+新的`Bicycle`類自動獲得`Vehicle`類的所有特性，比如 `currentSpeed`和`description`屬性，還有它的`makeNoise`方法。
 
-`Bicycle`類別定義了一個建構器來設置它定制的特性（自行車只有2個輪子）。`Bicycle`的建構器呼叫了它父類別`Vehicle`的建構器 `super.init()`，以此確保在`Bicycle`類別試圖修改那些繼承來的屬性前`Vehicle`類別已經初始化過它們了。
+除了它所繼承的特性，`Bicycle`類還定義了一個默認值為`false`的存儲型屬性`hasBasket`（屬性推斷為`Bool`）。
 
-> 注意：  
-不像 Objective-C，在 Swift 中，初始化器預設是不繼承的，見[初始化器的繼承與重寫](../chapter2/_14Initialization.html#initializer_inheritance_and_ overriding)
-
-`Vehicle`類別中`maxPassengers`的預設值對自行車來說已經是正確的，因此在`Bicycle`的建構器中並沒有改變它。而`numberOfWheels`原來的值對自行車來說是不正確的，因此在初始化器中將它更改為 2。
-
-`Bicycle`不僅可以繼承`Vehicle`的屬性，還可以繼承它的方法。如果你創建了一個`Bicycle`類別的實例，你就可以呼叫它繼承來的`description`方法，並且可以看到，它輸出的屬性值已經發生了變化：
+默認情況下，你創建任何新的`Bicycle`實例將不會有一個籃子，創建該實例之後，你可以為特定的`Bicycle`實例設置`hasBasket`屬性為`ture`：
 
 ```swift
 let bicycle = Bicycle()
-println("Bicycle: \(bicycle.description())")
-// Bicycle: 2 wheels; up to 1 passengers
+bicycle.hasBasket = true
 ```
-
-子類別還可以繼續被其它類別繼承：
+你還可以修改`Bicycle`實例所繼承的`currentSpeed`屬性，和查詢實例所繼承的`description`屬性：
 
 ```swift
+bicycle.currentSpeed = 15.0
+print("Bicycle: \(bicycle.description)")
+// Bicycle: traveling at 15.0 miles per hour
+```
+子類還可以繼續被其它類繼承，下面的示例為`Bicycle`創建了一個名為`Tandem`（雙人自行車）的子類：
+```swift
 class Tandem: Bicycle {
-    init() {
-        super.init()
-        maxPassengers = 2
-    }
+    var currentNumberOfPassengers = 0
 }
 ```
+`Tandem`從`Bicycle`繼承了所有的屬性與方法，這又使它同時繼承了`Vehicle`的所有屬性與方法。`Tandem`也增加了一個新的叫做`currentNumberOfPassengers`的存儲型屬性，預設值為0。
 
-上面的範例創建了`Bicycle`的一個子類別：雙人自行車（tandem）。`Tandem`從`Bicycle`繼承了兩個屬性，而這兩個屬性是`Bicycle`從`Vehicle`繼承而來的。`Tandem`並不修改輪子的數量，因為它仍是一輛自行車，有 2 個輪子。但它需要修改`maxPassengers`的值，因為雙人自行車可以坐兩個人。
-
-> 注意：  
-子類別只允許修改從超類別繼承來的變數屬性，而不能修改繼承來的常數屬性。
-
-創建一個`Tandem`類別的實例，列印它的描述，即可看到它的屬性已被更新：
+如果你創建了一個`Tandem`的實例，你可以使用它所有的新屬性和繼承的屬性，還能查詢從`Vehicle`繼承來的唯讀屬性`description`：
 
 ```swift
 let tandem = Tandem()
-println("Tandem: \(tandem.description())")
-// Tandem: 2 wheels; up to 2 passengers
+tandem.hasBasket = true
+tandem.currentNumberOfPassengers = 2
+tandem.currentSpeed = 22.0
+print("Tandem: \(tandem.description)")
+// Tandem: traveling at 22.0 miles per hour
 ```
-
-注意，`Tandem`類別也繼承了`description`方法。一個類別的實例方法會被這個類別的所有子類別繼承。
-
 <a name="overriding"></a>
 ## 重寫（Overriding）
 
