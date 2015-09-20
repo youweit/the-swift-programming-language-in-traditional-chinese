@@ -28,7 +28,7 @@ Swift 中的類別並不是從一個通用的基類別繼承而來。如果你�
 
 下面的例子定義了一個叫`Vehicle`的基類。這個基類聲明了一個名為`currentSpeed`，預設值是0.0的存儲屬性(屬性類型推斷為`Double`)。`currentSpeed`屬性的值被一個`String`類型的只讀計算型屬性`description`使用，用來創建車輛的描述。
 
-`Vehicle`基類也定義了一個名為`makeNois`e的方法。這個方法實際上不為`Vehicle`實例做任何事，但之後將會由`Vehicle`的子類實作：
+`Vehicle`基類也定義了一個名為`makeNoise`的方法。這個方法實際上不為`Vehicle`實例做任何事，但之後將會由`Vehicle`的子類實作：
 
 ```swift
 class Vehicle {
